@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.env
+# derived; rebuilt by scripts/build_out.py and scripts/build_site.py
+out/
+site/
+# raw discovery captures and the owner-facing review reports stay local
+discovery/samples/
+docs/phase*-report.md

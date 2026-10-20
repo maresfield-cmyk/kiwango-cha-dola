@@ -1,0 +1,9 @@
+{
+  "anomaly_pct": 3.0,
+  "hub_currencies": ["USD", "EUR", "GBP", "KES", "UGX", "AED", "CNY", "INR", "ZAR"],
+  "bot_exclude": ["ATS", "NLG", "MZM", "ZWD", "CUC", "GOLD"],
+  "banks": ["crdb", "nbc", "stanbic"],
+  "bank_names": {"crdb": "CRDB", "nbc": "NBC", "stanbic": "Stanbic"},
+  "midmarket": {"primary": "fawazahmed0", "fallback": "open-er-api", "backfill_from": "2024-03-02"},
+  "bot_backfill_from_year": 1998
+}
