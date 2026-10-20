@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as m with context %}
+{% block main %}
+<h1>{{ t('hist.h1') }}</h1>
+<p class="muted">{{ t('hist.lead') }}</p>
+<div class="pillrow"><a href="{{ url('/data/bot-monthly-mean.csv') }}" download>{{ t('hist.csv') }}</a><a href="{{ url('/api/series/bot-usd.json') }}">{{ t('hist.json') }}</a></div>
+
+<h2>{{ t('hist.year_h') }}</h2>
+<div class="card">{{ year_chart|safe }}<p class="small muted" style="margin:6px 0 0">{{ t('hist.year_note') }}</p></div>
+
+<h2>{{ t('hist.table_h') }}</h2>
+{% for c, tbl in tables %}
+<details{% if loop.first %} open{% endif %}><summary>{{ c }} &ndash; {{ t('ccy.' ~ c) }}</summary>
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('hist.year') }}</th>{% for mn in months %}<th scope="col">{{ mn }}</th>{% endfor %}<th scope="col">{{ t('hist.avg') }}</th></tr></thead>
+<tbody>{% for y, row, avg in tbl %}<tr><th scope="row">{{ y }}</th>{% for v in row %}<td>{{ lc.rate(v) if v is not none else '' }}</td>{% endfor %}<td><b>{{ lc.rate(avg) }}</b></td></tr>{% endfor %}</tbody></table></div>
+</details>
+{% endfor %}
+<p class="small muted">{{ t('hist.note') }}</p>
+{% endblock %}

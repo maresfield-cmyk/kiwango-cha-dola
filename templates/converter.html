@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as m with context %}
+{% block main %}
+<h1>{{ t('conv.h1') }}</h1>
+<p class="muted">{{ t('conv.lead') }}</p>
+{{ m.converter(default_ccy) }}
+<div class="note">{{ t('conv.basis_note') }}</div>
+<h2>{{ t('conv.table_h') }}</h2>
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('tbl.currency') }}</th><th scope="col">1</th><th scope="col">10</th><th scope="col">100</th><th scope="col">1,000</th></tr></thead>
+<tbody>{% for c, row in quick %}<tr><th scope="row"><a href="{{ url('/' ~ c|lower ~ '/') }}">{{ c }}</a></th>{% for v in row %}<td>{{ lc.num(v, 0) }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div>
+<p class="small muted">{{ t('conv.table_note') }}</p>
+{% endblock %}
+{% block scripts %}<script>{{ js_conv|safe }}</script>{% endblock %}

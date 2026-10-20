@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as m with context %}
+{% block main %}
+<p class="crumbs"><a href="{{ url('/') }}">{{ t('nav.hub') }}</a> / {{ ccy }}</p>
+<h1>{{ t('ccy.h1', name=t('ccy.' ~ ccy), code=ccy) }}</h1>
+<p>{{ summary }}</p>
+<section class="hero">
+<div class="card">
+<div class="muted small">{{ t('ccy.official', name=t('ccy.' ~ ccy)) }}</div>
+<div class="big">{{ lc.rate(bot.mean) }}<small>TZS / {{ ccy }}</small></div>
+<div class="badges">{{ m.chg(t('chg.d1'), bot.change.d1) }}{{ m.chg(t('chg.d7'), bot.change.d7) }}{{ m.chg(t('chg.d30'), bot.change.d30) }}</div>
+<dl class="kv"><div><dt>{{ t('tbl.buying') }}</dt><dd>{{ lc.pub(bot.buying) }}</dd></div><div><dt>{{ t('tbl.selling') }}</dt><dd>{{ lc.pub(bot.selling) }}</dd></div><div><dt>{{ t('tbl.spread') }}</dt><dd>{{ lc.num(bot.spread.tzs, 2 if bot.mean >= 100 else 4) }} ({{ lc.num(bot.spread.pct, 2) }}%)</dd></div></dl>
+<p class="stamp">{{ t('hub.bot_stamp', date=lc.date(bot.date), checked=lc.dt(bot.checked_at)) }}</p>
+</div>
+{% if mid %}<div class="card">
+<div class="muted small">{{ t('hub.mid') }}</div>
+<div class="big" style="font-size:clamp(1.8rem,8vw,2.6rem)">{{ lc.rate(mid.rate) }}<small>TZS / {{ ccy }}</small></div>
+{% if mid.vs_official_mean %}<p class="small" style="margin:8px 0">{{ t('hub.gap') }} <b>{{ lc.signed(mid.vs_official_mean.tzs, 2 if bot.mean >= 100 else 4) }} TZS ({{ lc.pct(mid.vs_official_mean.pct) }})</b></p>{% endif %}
+<p class="stamp">{{ t('hub.mid_stamp', date=lc.date(mid.date), source=mid.source) }}</p>
+</div>{% endif %}
+</section>
+
+<h2>{{ t('ccy.change_h') }}</h2>
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('ccy.period') }}</th><th scope="col">{{ t('ccy.change_pct') }}</th><th scope="col">{{ t('ccy.change_tzs') }}</th><th scope="col">{{ t('ccy.from') }}</th></tr></thead>
+<tbody>{% for k in ['d1','d7','d30','ytd','y1'] %}{% set c = bot.change[k] %}{% if c %}{% set cls = 'pos' if c.pct > 0.005 else ('neg' if c.pct < -0.005 else '') %}<tr><th scope="row">{{ t('chg.long.' ~ k) }}</th><td class="{{ cls }}"><b>{{ lc.pct(c.pct) }}</b></td><td class="{{ cls }}">{{ lc.signed(c.tzs, 2 if bot.mean >= 100 else 4) }}</td><td class="muted">{{ lc.date(c.from_date) }} &middot; {{ lc.rate(c.from_value) }}</td></tr>{% endif %}{% endfor %}</tbody></table></div>
+<p class="small muted">{{ t('ccy.change_note') }}</p>
+
+<h2>{{ t('ccy.chart_h') }}</h2>
+<div class="card">
+<div class="legend"><span><i></i>{{ t('legend.bot') }}</span>{% if has_mid_overlay %}<span><i class="d"></i>{{ t('legend.mid') }}</span>{% endif %}</div>
+{{ m.chart_tabs('rng', tabs) }}
+</div>
+
+{% if entry.banks %}<h2>{{ t('ccy.banks_h') }}</h2>
+{{ m.bank_table(entry) }}{{ m.best_line(entry) }}{% endif %}
+
+<h2>{{ t('ccy.conv_h') }}</h2>
+{{ m.converter(ccy) }}
+<h3>{{ t('ccy.common_h') }}</h3>
+<div class="grid2">
+<div class="tbl"><table><thead><tr><th scope="col">{{ ccy }}</th><th scope="col">TZS ({{ t('conv.b.bot_mean') }})</th></tr></thead><tbody>{% for a, v in common_f %}<tr><th scope="row">{{ lc.num(a, 0) }}</th><td>{{ lc.num(v, 0) }}</td></tr>{% endfor %}</tbody></table></div>
+<div class="tbl"><table><thead><tr><th scope="col">TZS</th><th scope="col">{{ ccy }} ({{ t('conv.b.bot_mean') }})</th></tr></thead><tbody>{% for a, v in common_t %}<tr><th scope="row">{{ lc.num(a, 0) }}</th><td>{{ lc.num(v, 2) }}</td></tr>{% endfor %}</tbody></table></div>
+</div>
+<div class="pillrow">{% for c in hub %}{% if c != ccy %}<a href="{{ url('/' ~ c|lower ~ '/') }}">{{ c }}</a>{% endif %}{% endfor %}</div>
+{% endblock %}
+{% block scripts %}<script>{{ js_conv|safe }}</script>{% endblock %}

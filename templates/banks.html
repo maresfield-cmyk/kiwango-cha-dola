@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as m with context %}
+{% block main %}
+<h1>{{ t('banks.h1') }}</h1>
+<p class="muted">{{ t('banks.lead') }}</p>
+<div class="note">{{ t('banks.how') }}</div>
+
+<h2>{{ t('banks.cheapest_h') }}</h2>
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('tbl.currency') }}</th><th scope="col" class="w">{{ t('banks.lowest') }}</th><th scope="col" class="w">{{ t('banks.highest') }}</th></tr></thead>
+<tbody>{% for c, lo, hi in cheapest %}<tr><th scope="row"><a href="#b-{{ c|lower }}">{{ c }}</a></th>
+<td class="w">{{ lo.banks|map('bankname')|join(', ') }}{% if lo.banks|length > 1 %} <span class="muted">({{ t('best.tie') }})</span>{% endif %}<br><b>{{ lc.num(lo.pct, 2) }}%</b></td>
+<td class="w">{{ hi.banks|map('bankname')|join(', ') }}{% if hi.banks|length > 1 %} <span class="muted">({{ t('best.tie') }})</span>{% endif %}<br><b>{{ lc.num(hi.pct, 2) }}%</b></td></tr>{% endfor %}</tbody></table></div>
+<p class="small muted">{{ t('banks.cheapest_note') }}</p>
+
+{% for c, e in hub_entries %}{% if e.banks %}
+<h2 id="b-{{ c|lower }}">{{ c }} &ndash; {{ t('ccy.' ~ c) }}</h2>
+{{ m.bank_table(e) }}
+{{ m.best_line(e) }}
+{% endif %}{% endfor %}
+
+<h2>{{ t('banks.chart_h') }}</h2>
+<div class="card">
+<p class="small muted" style="margin-top:0">{{ t('banks.chart_note') }}</p>
+{{ bot_spread_chart|safe }}
+</div>
+<p class="small muted">{{ t('banks.history_note', start=lc.date(bank_start)) }}</p>
+{% endblock %}

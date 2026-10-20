@@ -1,0 +1,43 @@
+{% macro chg(label, c) %}{% if c %}{% set d = direction(c.pct) %}<span class="badge {{ d }}" title="{{ t('chg.title.' ~ d) }}"><span>{{ label }}</span> <b>{{ lc.pct(c.pct) }}</b></span>{% endif %}{% endmacro %}
+
+{% macro chart_tabs(prefix, panes) %}
+<div class="tabs">
+{% for label, svg in panes %}<input type="radio" name="{{ prefix }}" id="t{{ loop.index }}"{% if loop.first %} checked{% endif %}><label for="t{{ loop.index }}">{{ label }}</label>
+{% endfor %}{% for label, svg in panes %}<div class="pane p{{ loop.index }}">{{ svg|safe }}</div>
+{% endfor %}</div>
+{% endmacro %}
+
+{% macro bank_table(entry) %}
+{% set best = entry.best_banks %}
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('tbl.bank') }}</th><th scope="col">{{ t('tbl.buying') }}</th><th scope="col">{{ t('tbl.selling') }}</th><th scope="col">{{ t('tbl.spread') }}</th><th scope="col">{{ t('tbl.vs_bot_buy') }}</th><th scope="col">{{ t('tbl.vs_bot_sell') }}</th><th scope="col">{{ t('tbl.checked') }}</th></tr></thead>
+<tbody>
+{% for b, r in entry.banks|dictsort %}<tr>
+<th scope="row">{{ bank_names[b] }}</th>
+<td{% if best and r.fresh and b in best.sell_foreign_best_buying.banks %} class="best"{% endif %}>{{ lc.rate(r.buying) }}</td>
+<td{% if best and r.fresh and b in best.buy_foreign_best_selling.banks %} class="best"{% endif %}>{{ lc.rate(r.selling) }}</td>
+<td>{{ lc.num(r.spread.tzs, 2) }} <span class="muted">({{ lc.num(r.spread.pct, 1) }}%)</span></td>
+<td class="{{ 'pos' if r.buying_vs_official_mean and r.buying_vs_official_mean.pct > 0.005 else ('neg' if r.buying_vs_official_mean and r.buying_vs_official_mean.pct < -0.005 else '') }}">{{ lc.pct(r.buying_vs_official_mean.pct if r.buying_vs_official_mean else None, 1) }}</td>
+<td>{{ lc.pct(r.selling_vs_official_mean.pct if r.selling_vs_official_mean else None, 1) }}</td>
+<td class="muted small">{{ lc.dt(r.observed_at) }}{% if not r.fresh %} <b>({{ t('tbl.stale') }})</b>{% endif %}</td>
+</tr>{% endfor %}
+</tbody></table></div>
+{% endmacro %}
+
+{% macro best_line(entry) %}{% set best = entry.best_banks %}{% if best %}
+<p class="note"><b>{{ t('best.sell') }}</b> {{ lc.rate(best.sell_foreign_best_buying.rate) }} &middot; {{ best.sell_foreign_best_buying.banks|map('bankname')|join(', ') }}{% if best.sell_foreign_best_buying.banks|length > 1 %} ({{ t('best.tie') }}){% endif %}<br>
+<b>{{ t('best.buy') }}</b> {{ lc.rate(best.buy_foreign_best_selling.rate) }} &middot; {{ best.buy_foreign_best_selling.banks|map('bankname')|join(', ') }}{% if best.buy_foreign_best_selling.banks|length > 1 %} ({{ t('best.tie') }}){% endif %}</p>
+{% endif %}{% endmacro %}
+
+{% macro converter(default_ccy) %}
+<form class="form cols" id="conv" onsubmit="return false" data-default="{{ default_ccy }}" data-locale="{{ lc.raw('format.intl') }}">
+<div><label class="f" for="cv-amt">{{ t('conv.amount') }}</label><input id="cv-amt" type="number" inputmode="decimal" min="0" step="any" value="100"></div>
+<div><label class="f" for="cv-ccy">{{ t('conv.currency') }}</label><select id="cv-ccy">{% for c in hub %}<option value="{{ c }}"{% if c == default_ccy %} selected{% endif %}>{{ c }} &ndash; {{ t('ccy.' ~ c) }}</option>{% endfor %}</select></div>
+<div><label class="f" for="cv-dir">{{ t('conv.direction') }}</label><select id="cv-dir"><option value="f2t">{{ t('conv.f2t') }}</option><option value="t2f">{{ t('conv.t2f') }}</option></select></div>
+<div><label class="f" for="cv-basis">{{ t('conv.basis') }}</label><select id="cv-basis">
+<option value="bot_mean">{{ t('conv.b.bot_mean') }}</option><option value="bot_buying">{{ t('conv.b.bot_buying') }}</option><option value="bot_selling">{{ t('conv.b.bot_selling') }}</option><option value="mid">{{ t('conv.b.mid') }}</option>
+{% for b in banks %}<option value="bank:{{ b }}">{{ bank_names[b] }}</option>{% endfor %}</select></div>
+</form>
+<div class="card" aria-live="polite"><div class="result" id="cv-out">&nbsp;</div><div class="small muted" id="cv-note"></div></div>
+<script type="application/json" id="cv-data">{{ conv_json|safe }}</script>
+{% endmacro %}

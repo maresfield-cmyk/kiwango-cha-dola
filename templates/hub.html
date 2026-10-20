@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% import 'macros.html' as m with context %}
+{% block main %}
+<h1>{{ t('hub.h1') }}</h1>
+<p class="muted">{{ t('hub.lead') }}</p>
+
+<section class="hero" aria-labelledby="official">
+<div class="card">
+<div class="muted small" id="official">{{ t('hub.official') }}</div>
+<div class="big">{{ lc.rate(bot.mean) }}<small>TZS / USD</small></div>
+<div class="badges">{{ m.chg(t('chg.d1'), bot.change.d1) }}{{ m.chg(t('chg.d7'), bot.change.d7) }}{{ m.chg(t('chg.d30'), bot.change.d30) }}</div>
+<dl class="kv"><div><dt>{{ t('tbl.buying') }}</dt><dd>{{ lc.pub(bot.buying) }}</dd></div><div><dt>{{ t('tbl.selling') }}</dt><dd>{{ lc.pub(bot.selling) }}</dd></div><div><dt>{{ t('tbl.spread') }}</dt><dd>{{ lc.num(bot.spread.tzs, 2) }} ({{ lc.num(bot.spread.pct, 2) }}%)</dd></div></dl>
+<p class="stamp">{{ t('hub.bot_stamp', date=lc.date(bot.date), checked=lc.dt(bot.checked_at)) }}</p>
+</div>
+<div class="card">
+<div class="muted small">{{ t('hub.mid') }}</div>
+<div class="big" style="font-size:clamp(1.8rem,8vw,2.6rem)"><span data-live="mid">{{ lc.rate(mid.rate) }}</span><small>TZS / USD</small></div>
+{% if mid.vs_official_mean %}<p class="small" style="margin:8px 0">{{ t('hub.gap') }} <b>{{ lc.signed(mid.vs_official_mean.tzs, 2) }} TZS ({{ lc.pct(mid.vs_official_mean.pct) }})</b></p>{% endif %}
+<p class="stamp">{{ t('hub.mid_stamp', date='<span data-live="mid-date">' ~ lc.date(mid.date) ~ '</span>', source=mid.source)|safe }}</p>
+<p class="small muted" style="margin-bottom:0">{{ t('hub.mid_note') }}</p>
+</div>
+</section>
+<p>{{ summary }}</p>
+
+<h2>{{ t('hub.banks_h') }}</h2>
+<p class="muted small">{{ t('hub.banks_lead') }}</p>
+{{ m.bank_table(usd) }}
+{{ m.best_line(usd) }}
+<p><a href="{{ url('/benki/') }}">{{ t('hub.banks_more') }} &rarr;</a></p>
+
+<h2>{{ t('hub.chart_h') }}</h2>
+<div class="card">
+<div class="legend"><span><i></i>{{ t('legend.bot') }}</span><span><i class="d"></i>{{ t('legend.mid') }}</span></div>
+{{ chart30|safe }}
+<p class="small" style="margin:6px 0 0"><a href="{{ url('/usd/') }}">{{ t('hub.chart_more') }} &rarr;</a></p>
+</div>
+
+<h2>{{ t('hub.others_h') }}</h2>
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('tbl.currency') }}</th><th scope="col">{{ t('tbl.bot_mean') }}</th><th scope="col">{{ t('tbl.buying') }}</th><th scope="col">{{ t('tbl.selling') }}</th><th scope="col">{{ t('chg.d1') }}</th><th scope="col">{{ t('chg.d7') }}</th><th scope="col">{{ t('tbl.mid') }}</th></tr></thead>
+<tbody>
+{% for c, e in others %}<tr>
+<th scope="row"><a href="{{ url('/' ~ c|lower ~ '/') }}">{{ c }}</a> <span class="muted small">{{ t('ccy.' ~ c) }}</span></th>
+<td>{{ lc.pub(e.bot.mean) }}</td><td>{{ lc.pub(e.bot.buying) }}</td><td>{{ lc.pub(e.bot.selling) }}</td>
+<td class="{{ 'pos' if e.bot.change.d1 and e.bot.change.d1.pct > 0.005 else ('neg' if e.bot.change.d1 and e.bot.change.d1.pct < -0.005 else '') }}">{{ lc.pct(e.bot.change.d1.pct if e.bot.change.d1 else None) }}</td>
+<td class="{{ 'pos' if e.bot.change.d7 and e.bot.change.d7.pct > 0.005 else ('neg' if e.bot.change.d7 and e.bot.change.d7.pct < -0.005 else '') }}">{{ lc.pct(e.bot.change.d7.pct if e.bot.change.d7 else None) }}</td>
+<td>{{ lc.rate(e.mid_market.rate) if e.mid_market else '' }}</td>
+</tr>{% endfor %}
+</tbody></table></div>
+<p class="small muted">{{ t('hub.others_note') }}</p>
+<div class="pillrow"><a href="{{ url('/kikokotoo/') }}">{{ t('nav.converter') }}</a><a href="{{ url('/historia/') }}">{{ t('nav.history') }}</a><a href="{{ url('/mbinu/') }}">{{ t('nav.method') }}</a></div>
+{% endblock %}
+{% block scripts %}<script>{{ js_live|safe }}</script>{% endblock %}

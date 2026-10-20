@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block main %}
+<h1>{{ t('method.h1') }}</h1>
+<p class="muted">{{ t('method.lead') }}</p>
+
+<h2>{{ t('method.sources_h') }}</h2>
+<div class="tbl"><table>
+<thead><tr><th scope="col">{{ t('method.src') }}</th><th scope="col">{{ t('method.what') }}</th><th scope="col">{{ t('method.cadence') }}</th><th scope="col">{{ t('method.last') }}</th></tr></thead>
+<tbody>{% for s in sources %}<tr><th scope="row"><a href="{{ s.url }}" rel="noopener">{{ s.name }}</a></th><td style="white-space:normal;text-align:left">{{ t('method.src.' ~ s.key) }}</td><td style="white-space:normal;text-align:left">{{ t('method.cad.' ~ s.key) }}</td><td class="small">{{ lc.dt(s.last_success) if s.last_success else '' }}</td></tr>{% endfor %}</tbody></table></div>
+
+<h2>{{ t('method.indicative_h') }}</h2>
+<p>{{ t('method.indicative') }}</p>
+
+<h2>{{ t('method.calc_h') }}</h2>
+<dl>
+<dt><b>{{ t('method.mean_t') }}</b></dt><dd>{{ t('method.mean_d') }}</dd>
+<dt style="margin-top:10px"><b>{{ t('method.spread_t') }}</b></dt><dd>{{ t('method.spread_d') }}</dd>
+<dt style="margin-top:10px"><b>{{ t('method.change_t') }}</b></dt><dd>{{ t('method.change_d') }}</dd>
+<dt style="margin-top:10px"><b>{{ t('method.dir_t') }}</b></dt><dd>{{ t('method.dir_d') }}</dd>
+<dt style="margin-top:10px"><b>{{ t('method.gap_t') }}</b></dt><dd>{{ t('method.gap_d') }}</dd>
+<dt style="margin-top:10px"><b>{{ t('method.best_t') }}</b></dt><dd>{{ t('method.best_d') }}</dd>
+</dl>
+
+<h2>{{ t('method.bot_h') }}</h2>
+<p>{{ t('method.bot_p1') }}</p><p>{{ t('method.bot_p2') }}</p>
+
+<h2>{{ t('method.banks_h') }}</h2>
+<p>{{ t('method.banks_p') }}</p>
+
+<h2>{{ t('method.quality_h') }}</h2>
+<p>{{ t('method.quality_p', n=excluded) }}</p>
+
+<h2>{{ t('method.limits_h') }}</h2>
+<p>{{ t('method.limits_p') }}</p>
+
+<h2>{{ t('method.cite_h') }}</h2>
+<p>{{ t('method.cite_p') }}</p>
+<pre class="card" style="white-space:pre-wrap;font-size:.9rem">{{ cite }}</pre>
+<h2>{{ t('method.data_h') }}</h2>
+<p>{{ t('method.data_p') }}</p>
+<div class="pillrow"><a href="{{ url('/api/latest.json') }}">/api/latest.json</a><a href="{{ url('/data/bot-monthly-mean.csv') }}">bot-monthly-mean.csv</a></div>
+{% endblock %}

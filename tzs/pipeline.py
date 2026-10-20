@@ -5,7 +5,7 @@ import traceback
 from . import store, validate
 from .sources import banks, bot, midmarket
 
-STATUS = store.OUT / "status.json"
+STATUS = store.DATA / "status.json"
 
 
 def _load_status():

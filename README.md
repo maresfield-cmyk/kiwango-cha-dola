@@ -17,10 +17,10 @@ python3 discovery/discover.py             # re-verify every source is still reac
 - `data/history/<source>/<year>.csv`  append-only observations (`source,currency,date,buying,selling,mean,observed_at,published_at,source_url,origin,flags`)
 - `data/alerts.jsonl`  rejected rows, anomalies (>3% move), failed sources
 - `data/reports/`  backfill audit reports
-- `out/`           everything the site publishes (`latest.json`, `series/`, `csv/`, `quality.json`, `reconcile.json`, `status.json`)
+- `out/`           everything the site publishes (`latest.json`, `series/`, `csv/`, `quality.json`, `reconcile.json`)
 
 ## Rules worth knowing
 - `origin`: `live` (captured by this pipeline) or `backfill` (BoT history form / fawazahmed0 dated snapshots).
 - `flags`: `carried` (BoT showed a new date with identical numbers), `wide_spread` (bank spread >25%), `tt` (NBC telegraphic-transfer basis).
 - Stored history is never edited. Source typos are excluded when `out/` is built and listed in `out/quality.json`.
-- A failing source keeps its last good value; the others still run; `out/status.json` records why.
+- A failing source keeps its last good value; the others still run; `data/status.json` records why.

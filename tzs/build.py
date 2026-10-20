@@ -139,7 +139,8 @@ def build_all(verbose=True):
     official_usd = {r[0]: r[3] for r in bots["USD"]["rows"]}
     mids = mid_series(official_usd)
     banks = bank_latest()
-    status = json.loads((OUT / "status.json").read_text()) if (OUT / "status.json").exists() else {}
+    sp = store.DATA / "status.json"
+    status = json.loads(sp.read_text()) if sp.exists() else {}
 
     latest = {"generated_at": store.now_iso(), "currencies": {}, "status": status.get("sources", {})}
     quality_report = {"bot": {}, "midmarket": {}}
