@@ -92,6 +92,13 @@ class Builder:
             data["ccy"][c] = ent
         return json.dumps(data, ensure_ascii=False, separators=(",", ":")).replace("</", "<\\/")
 
+    def conv_init(self, lc, ccy, amount=100):
+        """Server-rendered default conversion (BoT mean) so the result is visible before/without JS."""
+        b = self.latest["currencies"][ccy]["bot"]
+        r = b["mean"]
+        return {"out": f"{lc.num(amount, 2)} {ccy} = {lc.num(amount * r, 2)} TZS",
+                "note": lc.t("conv.rate_used", rate=lc.rate(r), label=lc.t("conv.b.bot_mean")) + " \u00b7 " + lc.t("conv.as_of", date=lc.date(b["date"]))}
+
     def common(self, lc, page, path):
         loc = lc.code
         others = [c for c in self.locales if c != loc][0]
@@ -159,14 +166,14 @@ class Builder:
             mean = e["bot"]["mean"]
             self.render(lc, "ccy", f"/{ccy.lower()}/", "currency.html",
                         lc.t("ccy.title", name=lc.t(f"ccy.{ccy}"), code=ccy), lc.t("ccy.desc", name=lc.t(f"ccy.{ccy}"), code=ccy, rate=lc.rate(mean), date=lc.date(e["bot"]["date"])),
-                        ccy=ccy, entry=e, bot=e["bot"], mid=e.get("mid_market"), summary=self.summary(lc, ccy, e["bot"]),
+                        ccy=ccy, init=self.conv_init(lc, ccy), entry=e, bot=e["bot"], mid=e.get("mid_market"), summary=self.summary(lc, ccy, e["bot"]),
                         tabs=tabs, has_mid_overlay=any(o for _, _, o in ch[:2]),
                         common_f=[(a, a * mean) for a in (1, 10, 50, 100, 500, 1000)],
                         common_t=[(a, a / mean) for a in (10000, 50000, 100000, 500000, 1000000)])
         # converter
         quick = [(c, [a * L[c]["bot"]["mean"] for a in (1, 10, 100, 1000)]) for c in self.hub]
         self.render(lc, "converter", "/kikokotoo/", "converter.html", lc.t("conv.title"), lc.t("conv.desc"),
-                    default_ccy="USD", quick=quick)
+                    default_ccy="USD", quick=quick, init=self.conv_init(lc, "USD"))
         # banks
         cheapest, entries = [], []
         for c in self.hub:

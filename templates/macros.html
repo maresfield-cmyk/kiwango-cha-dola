@@ -38,6 +38,6 @@
 <option value="bot_mean">{{ t('conv.b.bot_mean') }}</option><option value="bot_buying">{{ t('conv.b.bot_buying') }}</option><option value="bot_selling">{{ t('conv.b.bot_selling') }}</option><option value="mid">{{ t('conv.b.mid') }}</option>
 {% for b in banks %}<option value="bank:{{ b }}">{{ bank_names[b] }}</option>{% endfor %}</select></div>
 </form>
-<div class="card" aria-live="polite"><div class="result" id="cv-out">&nbsp;</div><div class="small muted" id="cv-note"></div></div>
+<div class="card" aria-live="polite"><div class="result" id="cv-out">{{ init.out }}</div><div class="small muted" id="cv-note">{{ init.note }}</div></div>
 <script type="application/json" id="cv-data">{{ conv_json|safe }}</script>
 {% endmacro %}
